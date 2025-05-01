@@ -14,10 +14,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Configuration with dynamically generated paths
 CONFIG = {
     "model_name": "bert-base-uncased",
-    "num_labels": 6,  # You may want to adjust the number of labels based on your dataset
+    "num_labels": 6,  # Adjust number of labels based on your dataset
     "batch_size": 16,
     "num_epochs": 4,
-    "learning_rate": 2e-5,
+    "learning_rate": 1e-5,  # Adjusted to reduce potential instability
+    "max_length": 128,
 
     # Paths are dynamically constructed relative to the base directory (ai_ml)
     "train_data_path": os.path.join(BASE_DIR, 'data', 'training.csv'),
@@ -34,7 +35,6 @@ CONFIG = {
 
     # API and model settings
     "api_port": 5000,
-    "max_length": 128
 }
 
 
@@ -50,7 +50,7 @@ def load_data():
     df = df.rename(columns={'text': 'text', 'label': 'label'})
     test_df = test_df.rename(columns={'text': 'text', 'label': 'label'})
 
-    # Filter out rows with the label '5' (surprise) or any unwanted label
+    # Filter out rows with the label '5' (or any other labels you want to exclude)
     df = df[df['label'] != 5]
     test_df = test_df[test_df['label'] != 5]
 
@@ -84,6 +84,7 @@ def preprocess_and_tokenize():
     test_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
 
     return train_dataset, test_dataset, tokenizer
+
 
 class CustomTrainer(Trainer):
     """
